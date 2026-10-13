@@ -1,0 +1,17 @@
+{
+    "git": {
+        "pushMessage": "git push is blocked. The user pushes manually.",
+        "refsMessage": "Writing remote refs is equivalent to a push and is blocked. The user pushes manually.",
+        "extraDeny": [],
+        "attributionPatterns": ["co-authored-by:", "generated with", "🤖", "noreply@anthropic\\.com"],
+        "attributionMessage": "The message must not carry agent attributions. Remove the Co-Authored-By / Generated with line and try again.",
+        "confirmCommit": true,
+        "confirmMessage": "Confirm the commit: check repository, branch and message.",
+        "denyCommitFile": true,
+        "commitFileMessage": "Use git commit -m. With -F/--file the message cannot be reviewed before committing."
+    },
+    "content": [],
+    "mirror": [
+        { "from": "CLAUDE.md", "to": "AGENTS.md" }
+    ]
+}

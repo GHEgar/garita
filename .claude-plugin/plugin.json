@@ -1,0 +1,16 @@
+{
+    "name": "garita",
+    "version": "0.1.0",
+    "description": "Guards for agent context repos: blocks git push and its evasions, rejects agent attributions, confirms commits, enforces content rules and mirrors CLAUDE.md into AGENTS.md",
+    "author": {
+        "name": "GHEgar"
+    },
+    "repository": "https://github.com/GHEgar/garita",
+    "license": "AGPL-3.0-only",
+    "keywords": [
+        "git",
+        "hooks",
+        "guard",
+        "context"
+    ]
+}

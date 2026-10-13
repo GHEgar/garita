@@ -1,0 +1,14 @@
+{
+    "name": "garita",
+    "description": "Guards for agent context repos",
+    "owner": {
+        "name": "GHEgar"
+    },
+    "plugins": [
+        {
+            "name": "garita",
+            "source": "./",
+            "description": "Guards for agent context repos"
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+# Changelog
+
+Todos los cambios relevantes de este proyecto se documentan en este archivo.
+
+El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa
+[Versionado Semántico](https://semver.org/lang/es/).
+
+## [0.1.0] - 2026-10-13
+
+### Agregado
+
+- Plugin de Claude Code con manifiesto y marketplace local en el mismo repo.
+- `guard-git`: bloqueo de `git push` y sus evasiones, escritura de refs con `gh api`, reglas extra,
+  rechazo de atribuciones, confirmación de commit y prohibición de `-F/--file`.
+- `guard-content`: reglas de contenido por glob y regex sobre Write, Edit y MultiEdit.
+- `mirror`: copia de archivos en la raíz del proyecto, por defecto `CLAUDE.md` a `AGENTS.md`.
+- `bin/link-context.sh`: enlace de fichas de un repo de contexto, con `.nolink`.
+- Configuración por proyecto en `.claude/garita.json` sobre `defaults.json`.
+- Pruebas en `bats`, con la suite de evasiones verificada contra los hooks de origen.
+
+### Corregido
+
+- Un `git push` en una línea posterior de un comando multilínea ya no pasa: los saltos de línea
+  cuentan como separador de comandos.
