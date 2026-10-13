@@ -15,7 +15,8 @@ A Claude Code plugin that guards agent context repositories:
   into each code repo as `CLAUDE.md` and `AGENTS.md`, excluded via `.git/info/exclude`. A `.nolink`
   file next to a ficha skips it.
 
-Every message and pattern is configurable per project.
+Every message and pattern is configurable per project. Without a config, garita does nothing, so it is
+safe to enable for every session.
 
 ## Requirements
 
@@ -36,12 +37,28 @@ The repository is its own marketplace. In the consuming project's `.claude/setti
 
 Keep a `permissions.deny` entry for `Bash(git push:*)` as well: a plugin cannot set permissions.
 
+To cover every session, including code repositories without their own settings, enable it at user
+scope as well:
+
+```bash
+claude plugin marketplace add /path/to/garita
+claude plugin install garita@garita --scope user
+```
+
 To try it without installing: `claude --plugin-dir /path/to/garita`.
 
 ## Configuration
 
-`.claude/garita.json` in the project, merged over [`defaults.json`](defaults.json). Objects merge
-recursively; lists replace the defaults.
+garita looks for its config in this order and stops at the first one found:
+
+1. `.claude/garita.json` in the project.
+2. The context repo the project's `CLAUDE.md` links to: when `CLAUDE.md` (in the project or its git
+   top level) is a symlink to `<context>/repos/<name>/CLAUDE.md`, garita uses
+   `<context>/.claude/garita.json`, with `mirror` turned off.
+3. Nothing: every hook exits without a decision.
+
+The config is merged over [`defaults.json`](defaults.json). Objects merge recursively; lists replace
+the defaults. An empty `{}` turns on the defaults.
 
 ```json
 {
@@ -79,8 +96,8 @@ If a hook fails (missing `jq`, broken input), it warns on stderr and lets the to
 
 - `git push` quoted as an argument right after a quote, as in `grep "git push" file`, is blocked too:
   the same rule catches `bash -c 'git push'`.
-- Hooks only run in sessions where the plugin is enabled. Enabled at project scope, they do not reach
-  sessions opened directly in another repository.
+- Enabled only at project scope, the hooks do not reach sessions opened directly in a code repository.
+  Enable it at user scope for that.
 
 ## Linking fichas
 

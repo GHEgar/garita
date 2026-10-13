@@ -10,6 +10,8 @@ path=$(printf '%s' "$input" | jq -r '.tool_input.file_path // ""' 2>/dev/null ||
 [[ -n "$path" ]] || exit 0
 
 root="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+config=$(garita_config)
+[[ -n "$config" ]] || exit 0
 
 while IFS=$'\t' read -r from to; do
     [[ -n "$from" && -n "$to" ]] || continue
@@ -17,6 +19,6 @@ while IFS=$'\t' read -r from to; do
         cp "$root/$from" "$root/$to"
         echo "$to synced from $from" >&2
     fi
-done < <(garita_config | jq -r '.mirror // [] | .[] | [.from, .to] | @tsv')
+done < <(printf '%s' "$config" | jq -r '.mirror // [] | .[] | [.from, .to] | @tsv')
 
 exit 0

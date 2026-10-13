@@ -5,6 +5,18 @@ Todos los cambios relevantes de este proyecto se documentan en este archivo.
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa
 [Versionado Semántico](https://semver.org/lang/es/).
 
+## [0.3.0] - 2026-10-13
+
+### Agregado
+
+- Herencia de configuración: un repo cuyo `CLAUDE.md` enlaza a `<contexto>/repos/<nombre>/CLAUDE.md`
+  usa el `garita.json` de ese contexto, sin espejo. También desde subdirectorios, vía git.
+
+### Cambiado
+
+- Sin configuración encontrada, los hooks no hacen nada. Un `{}` activa los defaults. Así el plugin se
+  puede habilitar en scope de usuario.
+
 ## [0.1.0] - 2026-10-13
 
 ### Agregado

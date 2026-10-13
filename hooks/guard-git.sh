@@ -10,6 +10,7 @@ cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // ""')
 [[ -n "$cmd" ]] || exit 0
 
 config=$(garita_config)
+[[ -n "$config" ]] || exit 0
 cfg() {
     printf '%s' "$config" | jq -r "$1"
 }

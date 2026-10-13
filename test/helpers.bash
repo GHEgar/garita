@@ -3,6 +3,7 @@ ROOT="$(cd "$BATS_TEST_DIRNAME/.." && pwd)"
 setup_project() {
     PROJECT="$BATS_TEST_TMPDIR/project"
     mkdir -p "$PROJECT/.claude"
+    printf '{}' >"$PROJECT/.claude/garita.json"
     export CLAUDE_PROJECT_DIR="$PROJECT"
 }
 

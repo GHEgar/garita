@@ -10,6 +10,7 @@ path=$(printf '%s' "$input" | jq -r '.tool_input.file_path // ""' 2>/dev/null ||
 [[ -n "$path" ]] || exit 0
 
 config=$(garita_config)
+[[ -n "$config" ]] || exit 0
 [[ "$(printf '%s' "$config" | jq '.content // [] | length')" -gt 0 ]] || exit 0
 
 project="${CLAUDE_PROJECT_DIR:-$(pwd)}"

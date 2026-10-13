@@ -1,6 +1,6 @@
 {
     "name": "garita",
-    "version": "0.1.0",
+    "version": "0.3.0",
     "description": "Guards for agent context repos: blocks git push and its evasions, rejects agent attributions, confirms commits, enforces content rules and mirrors CLAUDE.md into AGENTS.md",
     "author": {
         "name": "GHEgar"
