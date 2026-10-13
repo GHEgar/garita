@@ -5,6 +5,15 @@ Todos los cambios relevantes de este proyecto se documentan en este archivo.
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa
 [Versionado Semántico](https://semver.org/lang/es/).
 
+## [Sin publicar]
+
+### Corregido
+
+- `grep "git push"`, `rg`, `echo` o un mensaje de commit que mencione el push ya no se bloquean: las
+  comillas solo cuentan como separador si la línea tiene algo capaz de ejecutar una cadena.
+- Se bloquean evasiones que pasaban: comillas o barra invertida en `git` o en el subcomando, `eval`,
+  `xargs`, `find -exec`, `watch`, `doas`, `echo … | bash` y alias con `!git push` o `git config alias.x`.
+
 ## [0.3.0] - 2026-10-13
 
 ### Agregado

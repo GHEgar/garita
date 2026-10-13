@@ -4,7 +4,8 @@ A Claude Code plugin that guards agent context repositories:
 
 - **Blocks `git push`** and its usual evasions: command prefixes (`command`, `env`, `sudo`,
   `timeout`…), absolute paths to `git`, global options (`git -C dir push`), subshells, `bash -c`,
-  multi-line commands, `alias.x=push` and `gh api` writes to `/git/refs`.
+  multi-line commands, quote and backslash tricks (`gi""t push`, `\git push`), `eval`, `xargs`,
+  `find -exec`, `watch`, aliases that run push and `gh api` writes to `/git/refs`.
 - **Rejects agent attributions** (`Co-Authored-By`, `Generated with`, 🤖…) in commit, merge, tag,
   rebase and friends.
 - **Asks for confirmation** before every `git commit`, and denies `-F/--file` so the message can be
@@ -94,8 +95,11 @@ If a hook fails (missing `jq`, broken input), it warns on stderr and lets the to
 
 ## Known limitations
 
-- `git push` quoted as an argument right after a quote, as in `grep "git push" file`, is blocked too:
-  the same rule catches `bash -c 'git push'`.
+- Quoted text only counts as a command when the command line contains something that can execute a
+  string (`bash`, `eval`, `ssh`, `xargs`, `find`, `sed`, `python`, a `$VAR` as command…). Then any
+  quoted `git push` is blocked, even inside a harmless argument. Without such a word, `grep "git push"`
+  or a commit message that mentions it passes.
+- A separator inside quotes (`echo "a;git push"`) is treated as a real one.
 - Enabled only at project scope, the hooks do not reach sessions opened directly in a code repository.
   Enable it at user scope for that.
 

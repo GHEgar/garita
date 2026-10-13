@@ -28,7 +28,32 @@ setup() {
 @test 'gh api writing refs' { expect deny 'gh api -X POST repos/o/r/git/refs -f ref=refs/heads/x'; }
 @test 'gh api patching refs' { expect deny 'gh api --method PATCH repos/o/r/git/refs/heads/x'; }
 
-@test 'known false positive: push quoted as an argument' { expect deny 'grep -n "git push" README.md'; }
+@test 'push with empty quotes inside git' { expect deny 'gi""t push'; }
+@test 'push with quoted git' { expect deny '"git" push'; }
+@test 'push with single quoted git' { expect deny "'git' push"; }
+@test 'push with backslash' { expect deny '\git push'; }
+@test 'push with quoted subcommand' { expect deny 'git "push"'; }
+@test 'push with eval' { expect deny 'eval git push'; }
+@test 'push with eval and quotes' { expect deny 'eval "git push"'; }
+@test 'push piped into bash' { expect deny 'echo "git push" | bash'; }
+@test 'push with bash here-string' { expect deny "bash <<< 'git push'"; }
+@test 'push with xargs' { expect deny 'echo . | xargs git push'; }
+@test 'push with find -exec' { expect deny 'find . -maxdepth 0 -exec git push \;'; }
+@test 'push with watch' { expect deny 'watch git push'; }
+@test 'push with shell variable' { expect deny "\"\$SHELL\" -c 'git push'"; }
+@test 'push with python' { expect deny "python3 -c \"import os; os.system('git push')\""; }
+@test 'push over ssh' { expect deny "ssh host 'cd repo && git push'"; }
+@test 'alias with bang' { expect deny "git -c alias.p='!git push' p"; }
+@test 'alias set with config' { expect deny "git config alias.p '!git push'"; }
+
+@test 'quoted push in grep' { expect allow 'grep -n "git push" README.md'; }
+@test 'quoted push in rg' { expect allow "rg 'git push' docs/"; }
+@test 'quoted push in echo' { expect allow "echo 'never git push'"; }
+@test 'quoted push in log grep' { expect allow 'git log --grep="git push"'; }
+@test 'quoted push in a commit message asks' { expect ask 'git commit -m "docs: bloquear git push"'; }
+@test 'command substitution in quotes still counts' { expect deny 'echo "$(git push)"'; }
+@test 'sed keeps the conservative rule' { expect deny "sed -i 's/\"git push is/x/' f"; }
+@test 'separator inside quotes is conservative' { expect deny 'echo "a;git push"'; }
 
 @test 'status' { expect allow 'git status'; }
 @test 'log' { expect allow 'git log --oneline -5'; }
