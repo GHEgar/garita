@@ -7,6 +7,11 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 ## [Sin publicar]
 
+### Agregado
+
+- Plugin de opencode (`opencode/garita.js`) que corre los mismos hooks: bloqueos, reglas de contenido y
+  espejo. La confirmación de commit queda en los permisos de opencode.
+
 ### Corregido
 
 - `grep "git push"`, `rg`, `echo` o un mensaje de commit que mencione el push ya no se bloquean: las

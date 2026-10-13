@@ -103,6 +103,24 @@ If a hook fails (missing `jq`, broken input), it warns on stderr and lets the to
 - Enabled only at project scope, the hooks do not reach sessions opened directly in a code repository.
   Enable it at user scope for that.
 
+## opencode
+
+[`opencode/garita.js`](opencode/garita.js) is an opencode plugin that runs the same hooks with the same
+config resolution: it blocks what `guard-git` and `guard-content` deny and mirrors files after a write.
+An opencode plugin cannot ask, so commit confirmation comes from opencode's own permissions.
+
+```bash
+ln -s /path/to/garita/opencode/garita.js ~/.config/opencode/plugins/garita.js
+```
+
+```json
+{
+    "permission": {
+        "bash": { "git commit *": "ask" }
+    }
+}
+```
+
 ## Linking fichas
 
 ```bash
@@ -115,6 +133,7 @@ Idempotent. Existing real files are never overwritten.
 
 ```bash
 bats test/
+bun test test/opencode.test.js
 shellcheck hooks/*.sh bin/*.sh lib/*.sh
 claude plugin validate .
 ```
