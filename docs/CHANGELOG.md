@@ -5,10 +5,12 @@ Todos los cambios relevantes de este proyecto se documentan en este archivo.
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa
 [Versionado Semántico](https://semver.org/lang/es/).
 
-## [Sin publicar]
+## [1.0.0] - 2026-10-13
 
 ### Agregado
 
+- Esquema JSON de `garita.json` (`schema/garita.schema.json`). Sus claves son estables desde esta versión.
+- Guía de migración desde hooks propios en el README.
 - Plugin de opencode (`opencode/garita.js`) que corre los mismos hooks: bloqueos, reglas de contenido y
   espejo. La confirmación de commit queda en los permisos de opencode.
 

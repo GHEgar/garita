@@ -58,6 +58,15 @@ garita looks for its config in this order and stops at the first one found:
    `<context>/.claude/garita.json`, with `mirror` turned off.
 3. Nothing: every hook exits without a decision.
 
+The config is described by [`schema/garita.schema.json`](schema/garita.schema.json); point `$schema`
+at it for editor validation:
+
+```json
+{ "$schema": "https://raw.githubusercontent.com/GHEgar/garita/develop/schema/garita.schema.json" }
+```
+
+Its keys are stable from 1.0: removing or renaming one is a major version.
+
 The config is merged over [`defaults.json`](defaults.json). Objects merge recursively; lists replace
 the defaults. An empty `{}` turns on the defaults.
 
@@ -120,6 +129,17 @@ ln -s /path/to/garita/opencode/garita.js ~/.config/opencode/plugins/garita.js
     }
 }
 ```
+
+## Migrating from standalone hooks
+
+If a repo carries its own copies of these guards in `.claude/hooks/`:
+
+1. Move every message into `.claude/garita.json` (`pushMessage`, `attributionMessage`…), project-only
+   blocks into `git.extraDeny` and file rules into `content`.
+2. Drop the `hooks` block from `.claude/settings.json`, keep the `permissions.deny` for push, and
+   install the plugin (see Install).
+3. Delete `.claude/hooks/` and restart the open sessions: they still point at the deleted scripts.
+4. Replace a copied `bootstrap.sh` with a call to `bin/link-context.sh <context-dir> <projects-dir>`.
 
 ## Linking fichas
 

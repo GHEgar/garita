@@ -1,0 +1,123 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/GHEgar/garita/develop/schema/garita.schema.json",
+    "title": "garita config",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "git": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "pushMessage": {
+                    "type": "string"
+                },
+                "refsMessage": {
+                    "type": "string"
+                },
+                "extraDeny": {
+                    "type": "array",
+                    "items": {
+                        "allOf": [
+                            {
+                                "$ref": "#/$defs/rule"
+                            }
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "pattern": true,
+                            "message": true
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "attributionPatterns": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "attributionMessage": {
+                    "type": "string"
+                },
+                "confirmCommit": {
+                    "type": "boolean"
+                },
+                "confirmMessage": {
+                    "type": "string"
+                },
+                "denyCommitFile": {
+                    "type": "boolean"
+                },
+                "commitFileMessage": {
+                    "type": "string"
+                }
+            }
+        },
+        "content": {
+            "type": "array",
+            "items": {
+                "allOf": [
+                    {
+                        "$ref": "#/$defs/rule"
+                    }
+                ],
+                "type": "object",
+                "required": [
+                    "files"
+                ],
+                "properties": {
+                    "files": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "pattern": true,
+                    "message": true
+                },
+                "additionalProperties": false
+            }
+        },
+        "mirror": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "from",
+                    "to"
+                ],
+                "properties": {
+                    "from": {
+                        "type": "string"
+                    },
+                    "to": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "$defs": {
+        "rule": {
+            "type": "object",
+            "required": [
+                "pattern",
+                "message"
+            ],
+            "properties": {
+                "pattern": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
