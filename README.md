@@ -73,17 +73,6 @@ That config turns on [`defaults.json`](defaults.json): `git push` and remote ref
 messages with agent attributions are rejected, every `git commit` asks for confirmation, `-F/--file`
 is denied, and editing `CLAUDE.md` copies it to `AGENTS.md`.
 
-## Migrating from standalone hooks
-
-If a repo carries its own copies of these guards in `.claude/hooks/`:
-
-1. Move every message into `.claude/garita.json` (`pushMessage`, `attributionMessage`…), project-only
-   blocks into `git.extraDeny` and file rules into `content`.
-2. Drop the `hooks` block from `.claude/settings.json`, keep the `permissions.deny` for push, and
-   install the plugin (see Install).
-3. Delete `.claude/hooks/` and restart the open sessions: they still point at the deleted scripts.
-4. Replace a copied `bootstrap.sh` with a call to `bin/link-context.sh <context-dir> <projects-dir>`.
-
 ## Configuration
 
 garita looks for its config in this order and stops at the first one found:
@@ -158,6 +147,17 @@ bin/link-context.sh <context-dir> <projects-dir>
 ```
 
 Idempotent. Existing real files are never overwritten.
+
+## Migrating from standalone hooks
+
+If a repo carries its own copies of these guards in `.claude/hooks/`:
+
+1. Move every message into `.claude/garita.json` (`pushMessage`, `attributionMessage`…), project-only
+   blocks into `git.extraDeny` and file rules into `content`.
+2. Drop the `hooks` block from `.claude/settings.json`, keep the `permissions.deny` for push, and
+   install the plugin (see Install).
+3. Delete `.claude/hooks/` and restart the open sessions: they still point at the deleted scripts.
+4. Replace a copied `bootstrap.sh` with a call to `bin/link-context.sh <context-dir> <projects-dir>`.
 
 ## Known limitations
 
