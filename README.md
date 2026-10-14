@@ -1,4 +1,8 @@
-# garita
+# <picture><source media="(prefers-color-scheme: dark)" srcset=".github/assets/icon-dark.svg"><img src=".github/assets/icon-light.svg" width="36" height="36" alt=""></picture> garita
+
+[![license](https://img.shields.io/github/license/GHEgar/garita)](LICENSE)
+
+Guards for agent context repos: blocks git push, rejects agent attributions, confirms commits, enforces content rules
 
 A Claude Code plugin that guards agent context repositories:
 
@@ -19,11 +23,9 @@ A Claude Code plugin that guards agent context repositories:
 Every message and pattern is configurable per project. Without a config, garita does nothing, so it is
 safe to enable for every session.
 
-## Requirements
-
-`bash` and `jq`.
-
 ## Install
+
+Needs `bash` and `jq`.
 
 The repository is its own marketplace. In the consuming project's `.claude/settings.json`:
 
@@ -48,6 +50,40 @@ claude plugin install garita@garita --scope user
 
 To try it without installing: `claude --plugin-dir /path/to/garita`.
 
+| Entry | What it is | Needs |
+|---|---|---|
+| `.claude-plugin/`, `hooks/` | Claude Code plugin: `guard-git` and `guard-content` before a tool call, `mirror` after a write | `bash`, `jq` |
+| `opencode/garita.js` | opencode plugin that runs the same hooks | opencode, `bash`, `jq` |
+| `bin/link-context.sh` | Links the fichas of a context repo into the code repos | `bash`, `git` |
+
+## Quick start
+
+Install the plugin at user scope and give the project a `.claude/garita.json`:
+
+```bash
+claude plugin marketplace add /path/to/garita
+claude plugin install garita@garita --scope user
+```
+
+```json
+{ "$schema": "https://raw.githubusercontent.com/GHEgar/garita/develop/schema/garita.schema.json" }
+```
+
+That config turns on [`defaults.json`](defaults.json): `git push` and remote ref writes are blocked,
+messages with agent attributions are rejected, every `git commit` asks for confirmation, `-F/--file`
+is denied, and editing `CLAUDE.md` copies it to `AGENTS.md`.
+
+## Migrating from standalone hooks
+
+If a repo carries its own copies of these guards in `.claude/hooks/`:
+
+1. Move every message into `.claude/garita.json` (`pushMessage`, `attributionMessage`…), project-only
+   blocks into `git.extraDeny` and file rules into `content`.
+2. Drop the `hooks` block from `.claude/settings.json`, keep the `permissions.deny` for push, and
+   install the plugin (see Install).
+3. Delete `.claude/hooks/` and restart the open sessions: they still point at the deleted scripts.
+4. Replace a copied `bootstrap.sh` with a call to `bin/link-context.sh <context-dir> <projects-dir>`.
+
 ## Configuration
 
 garita looks for its config in this order and stops at the first one found:
@@ -59,13 +95,8 @@ garita looks for its config in this order and stops at the first one found:
 3. Nothing: every hook exits without a decision.
 
 The config is described by [`schema/garita.schema.json`](schema/garita.schema.json); point `$schema`
-at it for editor validation:
-
-```json
-{ "$schema": "https://raw.githubusercontent.com/GHEgar/garita/develop/schema/garita.schema.json" }
-```
-
-Its keys are stable from 1.0: removing or renaming one is a major version.
+at it for editor validation, as in the Quick start. Its keys are stable from 1.0: removing or renaming
+one is a major version.
 
 The config is merged over [`defaults.json`](defaults.json). Objects merge recursively; lists replace
 the defaults. An empty `{}` turns on the defaults.
@@ -102,16 +133,6 @@ Globs without a `/` match the file name; globs with a `/` match the path relativ
 If a hook fails (missing `jq`, broken input), it warns on stderr and lets the tool call through, except
 `guard-git` on a command that mentions `push`, which blocks it.
 
-## Known limitations
-
-- Quoted text only counts as a command when the command line contains something that can execute a
-  string (`bash`, `eval`, `ssh`, `xargs`, `find`, `sed`, `python`, a `$VAR` as command…). Then any
-  quoted `git push` is blocked, even inside a harmless argument. Without such a word, `grep "git push"`
-  or a commit message that mentions it passes.
-- A separator inside quotes (`echo "a;git push"`) is treated as a real one.
-- Enabled only at project scope, the hooks do not reach sessions opened directly in a code repository.
-  Enable it at user scope for that.
-
 ## opencode
 
 [`opencode/garita.js`](opencode/garita.js) is an opencode plugin that runs the same hooks with the same
@@ -130,17 +151,6 @@ ln -s /path/to/garita/opencode/garita.js ~/.config/opencode/plugins/garita.js
 }
 ```
 
-## Migrating from standalone hooks
-
-If a repo carries its own copies of these guards in `.claude/hooks/`:
-
-1. Move every message into `.claude/garita.json` (`pushMessage`, `attributionMessage`…), project-only
-   blocks into `git.extraDeny` and file rules into `content`.
-2. Drop the `hooks` block from `.claude/settings.json`, keep the `permissions.deny` for push, and
-   install the plugin (see Install).
-3. Delete `.claude/hooks/` and restart the open sessions: they still point at the deleted scripts.
-4. Replace a copied `bootstrap.sh` with a call to `bin/link-context.sh <context-dir> <projects-dir>`.
-
 ## Linking fichas
 
 ```bash
@@ -148,6 +158,16 @@ bin/link-context.sh <context-dir> <projects-dir>
 ```
 
 Idempotent. Existing real files are never overwritten.
+
+## Known limitations
+
+- Quoted text only counts as a command when the command line contains something that can execute a
+  string (`bash`, `eval`, `ssh`, `xargs`, `find`, `sed`, `python`, a `$VAR` as command…). Then any
+  quoted `git push` is blocked, even inside a harmless argument. Without such a word, `grep "git push"`
+  or a commit message that mentions it passes.
+- A separator inside quotes (`echo "a;git push"`) is treated as a real one.
+- Enabled only at project scope, the hooks do not reach sessions opened directly in a code repository.
+  Enable it at user scope for that.
 
 ## Development
 
@@ -158,6 +178,10 @@ shellcheck hooks/*.sh bin/*.sh lib/*.sh
 claude plugin validate .
 ```
 
+## Contributing
+
+Issues are welcome. Open one before sending a pull request.
+
 ## License
 
-AGPL-3.0-only.
+AGPL-3.0-only © GHEgar
