@@ -13,7 +13,7 @@ validate() {
 }
 
 @test 'consumer configs match the schema' {
-    for config in "$HOME/mua/ideas-mua/.claude/garita.json" "$HOME/mua/ideas-IIEG/.claude/garita.json"; do
+    for config in "$HOME"/mua/ideas-*/.claude/garita.json; do
         [[ -f "$config" ]] || skip "$config not present"
         run validate "$config"
         [[ -z "$output" ]] || { echo "$config: $output" >&2; return 1; }
