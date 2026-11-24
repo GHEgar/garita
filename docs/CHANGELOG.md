@@ -5,6 +5,20 @@ Todos los cambios relevantes de este proyecto se documentan en este archivo.
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa
 [Versionado Semántico](https://semver.org/lang/es/).
 
+## [1.1.0] - 2026-11-24
+
+### Agregado
+
+- `git.push: "ask"`: cada push pide confirmación, el push forzado se niega siempre y borrar refs
+  remotos pide dos confirmaciones (se niega una vez y el mismo comando pregunta dentro de 10 minutos).
+  El default sigue siendo `"deny"`.
+- `git.extraAsk`: reglas que piden confirmación en vez de negar.
+- Mensajes `confirmPushMessage`, `forcePushMessage`, `deletePushMessage` y `confirmDeleteMessage`.
+
+### Cambiado
+
+- Un comando con commit y push pide una sola confirmación con los dos mensajes.
+
 ## [1.0.0] - 2026-10-13
 
 ### Agregado

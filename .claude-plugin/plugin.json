@@ -1,7 +1,7 @@
 {
     "name": "garita",
-    "version": "1.0.0",
-    "description": "Guards for agent context repos: blocks git push, rejects agent attributions, confirms commits, enforces content rules",
+    "version": "1.1.0",
+    "description": "Guards for agent context repos: blocks or confirms git push, rejects agent attributions, confirms commits, enforces content rules",
     "author": {
         "name": "GHEgar"
     },

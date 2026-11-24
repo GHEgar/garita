@@ -2,7 +2,7 @@
 
 [![license](https://img.shields.io/github/license/GHEgar/garita)](LICENSE)
 
-Guards for agent context repos: blocks git push, rejects agent attributions, confirms commits, enforces content rules
+Guards for agent context repos: blocks or confirms git push, rejects agent attributions, confirms commits, enforces content rules
 
 A Claude Code plugin that guards agent context repositories:
 
@@ -10,6 +10,8 @@ A Claude Code plugin that guards agent context repositories:
   `timeout`…), absolute paths to `git`, global options (`git -C dir push`), subshells, `bash -c`,
   multi-line commands, quote and backslash tricks (`gi""t push`, `\git push`), `eval`, `xargs`,
   `find -exec`, `watch`, aliases that run push and `gh api` writes to `/git/refs`.
+- **Or confirms it**: with `"push": "ask"`, every push asks, force push is always denied and deleting
+  remote refs needs two confirmations.
 - **Rejects agent attributions** (`Co-Authored-By`, `Generated with`, 🤖…) in commit, merge, tag,
   rebase and friends.
 - **Asks for confirmation** before every `git commit`, and denies `-F/--file` so the message can be
@@ -38,7 +40,8 @@ The repository is its own marketplace. In the consuming project's `.claude/setti
 }
 ```
 
-Keep a `permissions.deny` entry for `Bash(git push:*)` as well: a plugin cannot set permissions.
+Keep a `permissions.deny` entry for `Bash(git push:*)` as well: a plugin cannot set permissions. With
+`"push": "ask"`, use `permissions.ask` instead.
 
 To cover every session, including code repositories without their own settings, enable it at user
 scope as well:
@@ -93,9 +96,15 @@ the defaults. An empty `{}` turns on the defaults.
 ```json
 {
     "git": {
+        "push": "deny",
         "pushMessage": "Push is done by the user.",
+        "confirmPushMessage": "Check repository, branch and remote.",
+        "forcePushMessage": "No force push.",
+        "deletePushMessage": "Ask in the chat, then run it again.",
+        "confirmDeleteMessage": "Second confirmation: deletes remote refs.",
         "refsMessage": "Writing remote refs is a push.",
         "extraDeny": [{ "pattern": "deploy-prod", "message": "The user deploys." }],
+        "extraAsk": [{ "pattern": "make[[:space:]]+deploy", "message": "Confirm the deploy." }],
         "attributionPatterns": ["co-authored-by:", "generated with"],
         "attributionMessage": "No agent attributions.",
         "confirmCommit": true,
@@ -114,6 +123,17 @@ the defaults. An empty `{}` turns on the defaults.
 }
 ```
 
+### Push modes
+
+| `push` | `git push` | `--force`, `-f`, `--force-with-lease`, `--mirror`, `+ref` | `--delete`, `-d`, `:ref`, `--prune` |
+|---|---|---|---|
+| `deny` (default) | denied | denied | denied |
+| `ask` | asks | denied | denied once, asks on the same command within 10 minutes |
+
+The two-step delete makes the agent stop and ask in the chat before the permission prompt. The pending
+step lives in `$XDG_RUNTIME_DIR/garita` (or `$GARITA_STATE_DIR`). `gh api` writes to `/git/refs` and
+push aliases stay denied in both modes.
+
 Patterns are extended regular expressions (`grep -E`); attribution patterns are case-insensitive.
 Globs without a `/` match the file name; globs with a `/` match the path relative to the project.
 
@@ -126,7 +146,7 @@ If a hook fails (missing `jq`, broken input), it warns on stderr and lets the to
 
 [`opencode/garita.js`](opencode/garita.js) is an opencode plugin that runs the same hooks with the same
 config resolution: it blocks what `guard-git` and `guard-content` deny and mirrors files after a write.
-An opencode plugin cannot ask, so commit confirmation comes from opencode's own permissions.
+An opencode plugin cannot ask, so commit and push confirmation come from opencode's own permissions.
 
 ```bash
 ln -s /path/to/garita/opencode/garita.js ~/.config/opencode/plugins/garita.js
@@ -135,7 +155,7 @@ ln -s /path/to/garita/opencode/garita.js ~/.config/opencode/plugins/garita.js
 ```json
 {
     "permission": {
-        "bash": { "git commit *": "ask" }
+        "bash": { "git commit *": "ask", "git push *": "ask" }
     }
 }
 ```
@@ -166,6 +186,8 @@ If a repo carries its own copies of these guards in `.claude/hooks/`:
   quoted `git push` is blocked, even inside a harmless argument. Without such a word, `grep "git push"`
   or a commit message that mentions it passes.
 - A separator inside quotes (`echo "a;git push"`) is treated as a real one.
+- In `ask` mode, force and delete flags are read from every `push …` fragment of the line, so a commit
+  message such as `"fix push -f"` next to a push is taken as a force push and denied.
 - Enabled only at project scope, the hooks do not reach sessions opened directly in a code repository.
   Enable it at user scope for that.
 

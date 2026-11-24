@@ -12,8 +12,43 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "push": {
+                    "type": "string",
+                    "enum": [
+                        "deny",
+                        "ask"
+                    ]
+                },
                 "pushMessage": {
                     "type": "string"
+                },
+                "confirmPushMessage": {
+                    "type": "string"
+                },
+                "forcePushMessage": {
+                    "type": "string"
+                },
+                "deletePushMessage": {
+                    "type": "string"
+                },
+                "confirmDeleteMessage": {
+                    "type": "string"
+                },
+                "extraAsk": {
+                    "type": "array",
+                    "items": {
+                        "allOf": [
+                            {
+                                "$ref": "#/$defs/rule"
+                            }
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "pattern": true,
+                            "message": true
+                        },
+                        "additionalProperties": false
+                    }
                 },
                 "refsMessage": {
                     "type": "string"

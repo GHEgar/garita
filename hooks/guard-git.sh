@@ -21,8 +21,11 @@ pre='([[:space:]]*(command|builtin|exec|eval|env|sudo|doas|nohup|time|nice|setsi
 gitbin='[[:space:]]*([^[:space:];&|()]*/)?git'
 gitopts='([[:space:]]+-[^[:space:]]+([[:space:]]+[^-[:space:]][^[:space:]]*)?)*'
 executors='(^|[^[:alnum:]_.-])(bash|sh|zsh|dash|ksh|fish|eval|exec|source|ssh|su|sudo|doas|env|xargs|watch|nohup|timeout|nice|setsid|stdbuf|parallel|script|find|sed|awk|gawk|perl|ruby|python[0-9.]*|node|deno|bun|npx|npm|tclsh)([^[:alnum:]_.-]|$)|\$[[:alpha:]_{]'
+force='[[:space:]](--force(-with-lease|-if-includes)?|--mirror)([=[:space:]]|$)|[[:space:]]-[[:alpha:]]*f[[:alpha:]]*([[:space:]]|$)|[[:space:]]\+[^[:space:]]'
+delete='[[:space:]](--delete|--prune)([=[:space:]]|$)|[[:space:]]-[[:alpha:]]*d[[:alpha:]]*([[:space:]]|$)|[[:space:]]:[^[:space:]]'
 flat=$(printf '%s' "$cmd" | tr '\n' ';')
 plain=$(printf '%s' "$flat" | tr -d "\"'\\\\")
+asks=()
 
 matches() {
     printf '%s' "$flat" | grep -qE "$1"
@@ -38,8 +41,31 @@ git_sub() {
     matches "${sep}${tail}" || printf '%s' "$plain" | grep -qE "${strict}${tail}"
 }
 
+push_args() {
+    printf '%s\n%s' "$flat" "$plain" | grep -oE 'push([[:space:]][^;&|]*)?' | grep -qE "$1"
+}
+
+second_confirmation() {
+    local dir="${GARITA_STATE_DIR:-${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/garita}" token
+    mkdir -p "$dir"
+    token="$dir/$(printf '%s\n%s' "${CLAUDE_PROJECT_DIR:-$(pwd)}" "$cmd" | sha256sum | cut -c1-32)"
+    if [[ -f "$token" ]] && (($(date +%s) - $(stat -c %Y "$token") < 600)); then
+        rm -f "$token"
+        return 0
+    fi
+    touch "$token"
+    return 1
+}
+
+pushing=false
 if git_sub push; then
-    deny "$(cfg '.git.pushMessage')"
+    if [[ "$(cfg '.git.push // "deny"')" != ask ]]; then
+        deny "$(cfg '.git.pushMessage')"
+    fi
+    if push_args "$force"; then
+        deny "$(cfg '.git.forcePushMessage')"
+    fi
+    pushing=true
 fi
 
 if matches 'alias\.[^=[:space:]]+([[:space:]]+|=)[^;&|]*push' \
@@ -67,8 +93,28 @@ if git_sub commit; then
         deny "$(cfg '.git.commitFileMessage')"
     fi
     if [[ "$(cfg '.git.confirmCommit')" != "false" ]]; then
-        ask "$(cfg '.git.confirmMessage')"
+        asks+=("$(cfg '.git.confirmMessage')")
     fi
+fi
+
+if [[ "$pushing" == true ]]; then
+    if push_args "$delete"; then
+        second_confirmation || deny "$(cfg '.git.deletePushMessage')"
+        asks+=("$(cfg '.git.confirmDeleteMessage')")
+    else
+        asks+=("$(cfg '.git.confirmPushMessage')")
+    fi
+fi
+
+while IFS= read -r rule; do
+    [[ -n "$rule" ]] || continue
+    if matches "$(printf '%s' "$rule" | jq -r '.pattern')"; then
+        asks+=("$(printf '%s' "$rule" | jq -r '.message')")
+    fi
+done < <(cfg '.git.extraAsk // [] | .[] | tojson')
+
+if ((${#asks[@]})); then
+    ask "$(printf '%s\n' "${asks[@]}" | sed '/^$/d' | paste -sd ' ')"
 fi
 
 exit 0

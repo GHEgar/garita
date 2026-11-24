@@ -29,6 +29,12 @@ test('blocks push with the configured message', async () => {
     await expect(before('bash', { command: 'git -C x push' })).rejects.toThrow('bloqueado desde opencode');
 });
 
+test('in ask mode leaves the push to opencode permissions but blocks force', async () => {
+    writeFileSync(join(project, '.claude', 'garita.json'), JSON.stringify({ git: { push: 'ask' } }));
+    await expect(before('bash', { command: 'git push origin develop' })).resolves.toBeUndefined();
+    await expect(before('bash', { command: 'git push --force' })).rejects.toThrow('Force push is blocked.');
+});
+
 test('lets other commands through', async () => {
     await expect(before('bash', { command: 'git status' })).resolves.toBeUndefined();
 });

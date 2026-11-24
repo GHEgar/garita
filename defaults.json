@@ -1,8 +1,14 @@
 {
     "git": {
+        "push": "deny",
         "pushMessage": "git push is blocked. The user pushes manually.",
+        "confirmPushMessage": "Confirm the push: check repository, branch and remote.",
+        "forcePushMessage": "Force push is blocked.",
+        "deletePushMessage": "Deleting remote refs needs two confirmations. Ask the user in the chat, then run the same command again.",
+        "confirmDeleteMessage": "Second confirmation: this deletes refs on the remote.",
         "refsMessage": "Writing remote refs is equivalent to a push and is blocked. The user pushes manually.",
         "extraDeny": [],
+        "extraAsk": [],
         "attributionPatterns": ["co-authored-by:", "generated with", "🤖", "noreply@anthropic\\.com"],
         "attributionMessage": "The message must not carry agent attributions. Remove the Co-Authored-By / Generated with line and try again.",
         "confirmCommit": true,
